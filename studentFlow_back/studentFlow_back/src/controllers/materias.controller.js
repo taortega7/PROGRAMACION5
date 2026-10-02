@@ -11,7 +11,7 @@ import { sendSuccess, sendNoContent } from "../utils/api-response.js";
  *
  * @async
  * @function listMaterias
- * @param {import('express').Request} request - Objeto de petición Express (requiere `request.user.id`).
+ * @param {import('express').Request} request - Objeto de petición Express.
  * @param {import('express').Response} response - Objeto de respuesta Express.
  * @param {import('express').NextFunction} next - Middleware para manejo de errores.
  * @returns {Promise<void>}
@@ -30,7 +30,7 @@ export async function listMaterias(request, response, next) {
  *
  * @async
  * @function getMateria
- * @param {import('express').Request} request - Requiere `request.params.id` y `request.user.id`.
+ * @param {import('express').Request} request - Requiere request.params.id.
  * @param {import('express').Response} response - Objeto de respuesta Express.
  * @param {import('express').NextFunction} next - Middleware para manejo de errores.
  * @returns {Promise<void>}
@@ -50,7 +50,7 @@ export async function getMateria(request, response, next) {
  *
  * @async
  * @function createMateria
- * @param {import('express').Request} request - Requiere `request.body` con los datos y `request.user.id`.
+ * @param {import('express').Request} request - Requiere request.body.
  * @param {import('express').Response} response - Objeto de respuesta Express.
  * @param {import('express').NextFunction} next - Middleware para manejo de errores.
  * @returns {Promise<void>}
@@ -70,7 +70,7 @@ export async function createMateria(request, response, next) {
  *
  * @async
  * @function replaceMateria
- * @param {import('express').Request} request - Requiere `request.params.id`, `request.body` y `request.user.id`.
+ * @param {import('express').Request} request - Requiere request.params.id y request.body.
  * @param {import('express').Response} response - Objeto de respuesta Express.
  * @param {import('express').NextFunction} next - Middleware para manejo de errores.
  * @returns {Promise<void>}
@@ -91,7 +91,7 @@ export async function replaceMateria(request, response, next) {
  *
  * @async
  * @function updateMateria
- * @param {import('express').Request} request - Requiere `request.params.id`, `request.body` parcial y `request.user.id`.
+ * @param {import('express').Request} request - Requiere request.params.id y request.body.
  * @param {import('express').Response} response - Objeto de respuesta Express.
  * @param {import('express').NextFunction} next - Middleware para manejo de errores.
  * @returns {Promise<void>}
@@ -112,7 +112,7 @@ export async function updateMateria(request, response, next) {
  *
  * @async
  * @function deleteMateria
- * @param {import('express').Request} request - Requiere `request.params.id` y `request.user.id`.
+ * @param {import('express').Request} request - Requiere request.params.id.
  * @param {import('express').Response} response - Objeto de respuesta Express.
  * @param {import('express').NextFunction} next - Middleware para manejo de errores.
  * @returns {Promise<void>}
@@ -131,17 +131,37 @@ export async function deleteMateria(request, response, next) {
  * Obtiene la lista de tareas asociadas a una materia específica.
  *
  * @async
- * @function getTareasByMateria
- * @param {import('express').Request} request - Requiere `request.params.id` y `request.user.id`.
+ * @function listTareasByMateria
+ * @param {import('express').Request} request - Requiere request.params.id.
  * @param {import('express').Response} response - Objeto de respuesta Express.
  * @param {import('express').NextFunction} next - Middleware para manejo de errores.
  * @returns {Promise<void>}
  */
-export async function getTareasByMateria(request, response, next) {
+export async function listTareasByMateria(request, response, next) {
   try {
-    const materiaId = validateMateriaId(request.params.id);
-    const tareas = await materiasService.getTareasByMateria(materiaId, request.user.id);
+    const id = validateMateriaId(request.params.id);
+    const tareas = await materiasService.listTareasByMateria(id, request.user.id);
     return sendSuccess(response, tareas);
+  } catch (error) {
+    return next(error);
+  }
+}
+
+/**
+ * Obtiene la lista de eventos asociados a una materia específica.
+ *
+ * @async
+ * @function listEventosByMateria
+ * @param {import('express').Request} request - Requiere request.params.id.
+ * @param {import('express').Response} response - Objeto de respuesta Express.
+ * @param {import('express').NextFunction} next - Middleware para manejo de errores.
+ * @returns {Promise<void>}
+ */
+export async function listEventosByMateria(request, response, next) {
+  try {
+    const id = validateMateriaId(request.params.id);
+    const eventos = await materiasService.listEventosByMateria(id, request.user.id);
+    return sendSuccess(response, eventos);
   } catch (error) {
     return next(error);
   }

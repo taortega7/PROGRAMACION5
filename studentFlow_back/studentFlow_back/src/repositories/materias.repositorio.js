@@ -12,26 +12,25 @@ const sortableFields = {
 };
 
 /**
- * Normaliza y mapea el campo y dirección de ordenamiento para la consulta SQL.
+ * Normaliza y mapea el campo de ordenamiento.
  *
  * @function normalizeSort
- * @param {string} sort - Campo por el cual se desea ordenar.
- * @param {string} order - Dirección del ordenamiento ('asc' o 'desc').
- * @returns {string} Fragmento SQL de ordenamiento sanitizado (ej. "m.nombre ASC").
+ * @param {string} sort - Campo a ordenar.
+ * @param {string} order - Dirección del ordenamiento.
+ * @returns {string}
  */
 function normalizeSort(sort, order) {
   const column = sortableFields[sort] || sortableFields.nombre;
   const direction = String(order).toLowerCase() === "desc" ? "DESC" : "ASC";
-
   return `${column} ${direction}`;
 }
 
 /**
- * Mapea las columnas de la base de datos a un objeto de dominio formateado en JavaScript.
+ * Mapea las columnas de MySQL al objeto de dominio.
  *
  * @function mapMateria
- * @param {Object} row - Fila obtenida directamente de la consulta MySQL.
- * @returns {Object} Objeto materia con nombres de claves camelCase y tipos casteados.
+ * @param {Object} row - Fila cruda de MySQL.
+ * @returns {Object}
  */
 function mapMateria(row) {
   return {
@@ -47,19 +46,13 @@ function mapMateria(row) {
 }
 
 /**
- * Obtiene un listado paginado y filtrado de materias asociadas a un usuario.
+ * Obtiene un listado paginado y filtrado de materias.
  *
  * @async
  * @function findAllByUserId
- * @param {number|string} userId - ID del usuario dueño de las materias.
- * @param {Object} [filters={}] - Opciones de filtrado, ordenamiento y paginación.
- * @param {boolean} [filters.activa] - Filtro opcional por estado activo/inactivo.
- * @param {string} [filters.search] - Término de búsqueda para coincidencia en nombre o código.
- * @param {string} [filters.sort] - Campo por el cual ordenar los resultados.
- * @param {string} [filters.order] - Dirección del ordenamiento ('asc' o 'desc').
- * @param {number} [filters.limit=10] - Cantidad de registros a retornar por página.
- * @param {number} [filters.page=1] - Número de página actual.
- * @returns {Promise<{materias: Array<Object>, total: number}>} Lista de materias mapeadas y el conteo total de registros.
+ * @param {number|string} userId - ID del usuario.
+ * @param {Object} [filters={}] - Filtros de búsqueda.
+ * @returns {Promise<Object>}
  */
 export async function findAllByUserId(userId, filters = {}) {
   const conditions = ["m.id_usuario = ?"];
@@ -83,8 +76,8 @@ export async function findAllByUserId(userId, filters = {}) {
   );
 
   const orderBy = normalizeSort(filters.sort, filters.order);
-  const limit = filters.limit;
-  const offset = (filters.page - 1) * limit;
+  const limit = filters.limit || 20;
+  const offset = ((filters.page || 1) - 1) * limit;
 
   const [rows] = await pool.execute(
     `SELECT
@@ -111,13 +104,13 @@ export async function findAllByUserId(userId, filters = {}) {
 }
 
 /**
- * Busca una materia específica por su ID y por el ID de usuario propietario.
+ * Busca una materia específica por su ID.
  *
  * @async
  * @function findByIdAndUserId
- * @param {number|string} id - ID de la materia a consultar.
- * @param {number|string} userId - ID del usuario autenticado.
- * @returns {Promise<Object|null>} Promesa que resuelve con la materia formateada o `null` si no existe.
+ * @param {number|string} id - ID de la materia.
+ * @param {number|string} userId - ID del usuario.
+ * @returns {Promise<Object|null>}
  */
 export async function findByIdAndUserId(id, userId) {
   const [rows] = await pool.execute(
@@ -140,13 +133,13 @@ export async function findByIdAndUserId(id, userId) {
 }
 
 /**
- * Inserta un nuevo registro de materia en la base de datos.
+ * Inserta un nuevo registro de materia.
  *
  * @async
  * @function createMateria
  * @param {number|string} userId - ID del usuario.
- * @param {Object} materia - Objeto con los datos de la materia (nombre, codigo, color, creditos, activa).
- * @returns {Promise<Object>} Objeto de la materia recién creada obtenido vía `findByIdAndUserId`.
+ * @param {Object} materia - Datos de la materia.
+ * @returns {Promise<Object>}
  */
 export async function createMateria(userId, materia) {
   const [result] = await pool.execute(
@@ -166,14 +159,14 @@ export async function createMateria(userId, materia) {
 }
 
 /**
- * Realiza un reemplazo completo (UPDATE) de los datos de una materia.
+ * Realiza un reemplazo completo de los datos.
  *
  * @async
  * @function updateMateria
- * @param {number|string} id - ID de la materia a actualizar.
+ * @param {number|string} id - ID de la materia.
  * @param {number|string} userId - ID del usuario.
- * @param {Object} materia - Objeto con los datos completos actualizados.
- * @returns {Promise<Object>} Objeto de la materia actualizada.
+ * @param {Object} materia - Nuevos datos.
+ * @returns {Promise<Object>}
  */
 export async function updateMateria(id, userId, materia) {
   await pool.execute(
@@ -195,14 +188,14 @@ export async function updateMateria(id, userId, materia) {
 }
 
 /**
- * Ejecuta una actualización parcial dinámicamente según los campos provistos.
+ * Ejecuta una actualización parcial dinámicamente.
  *
  * @async
  * @function patchMateria
  * @param {number|string} id - ID de la materia.
  * @param {number|string} userId - ID del usuario.
- * @param {Object} partialMateria - Objeto con los campos específicos a actualizar.
- * @returns {Promise<Object>} Objeto de la materia tras aplicar los cambios.
+ * @param {Object} partialMateria - Campos a actualizar.
+ * @returns {Promise<Object>}
  */
 export async function patchMateria(id, userId, partialMateria) {
   const fields = [];
@@ -212,22 +205,18 @@ export async function patchMateria(id, userId, partialMateria) {
     fields.push("nombre = ?");
     params.push(partialMateria.nombre);
   }
-
   if (partialMateria.codigo !== undefined) {
     fields.push("codigo = ?");
     params.push(partialMateria.codigo);
   }
-
   if (partialMateria.color !== undefined) {
     fields.push("color = ?");
     params.push(partialMateria.color);
   }
-
   if (partialMateria.creditos !== undefined) {
     fields.push("creditos = ?");
     params.push(partialMateria.creditos);
   }
-
   if (partialMateria.activa !== undefined) {
     fields.push("activa = ?");
     params.push(partialMateria.activa ? 1 : 0);
@@ -250,13 +239,13 @@ export async function patchMateria(id, userId, partialMateria) {
 }
 
 /**
- * Elimina físicamente el registro de una materia de la base de datos.
+ * Elimina físicamente el registro.
  *
  * @async
  * @function deleteMateria
- * @param {number|string} id - ID de la materia a eliminar.
- * @param {number|string} userId - ID del usuario dueño de la materia.
- * @returns {Promise<boolean>} Retorna `true` si la fila fue eliminada exitosamente.
+ * @param {number|string} id - ID de la materia.
+ * @param {number|string} userId - ID del usuario.
+ * @returns {Promise<boolean>}
  */
 export async function deleteMateria(id, userId) {
   const [result] = await pool.execute(
@@ -268,14 +257,14 @@ export async function deleteMateria(id, userId) {
 }
 
 /**
- * Verifica si un código de materia ya existe en la base de datos para determinado usuario.
+ * Verifica existencia de código.
  *
  * @async
  * @function existsByCode
  * @param {number|string} userId - ID del usuario.
- * @param {string} codigo - Código de la materia a verificar.
- * @param {number|string} [excludeId] - ID opcional de materia a ignorar en la verificación.
- * @returns {Promise<boolean>} Retorna `true` si ya existe un registro con ese código.
+ * @param {string} codigo - Código.
+ * @param {number|string} [excludeId] - ID a ignorar.
+ * @returns {Promise<boolean>}
  */
 export async function existsByCode(userId, codigo, excludeId) {
   const params = [userId, codigo];
@@ -293,14 +282,14 @@ export async function existsByCode(userId, codigo, excludeId) {
 }
 
 /**
- * Verifica si un nombre de materia ya existe en la base de datos para determinado usuario.
+ * Verifica existencia de nombre.
  *
  * @async
  * @function existsByName
  * @param {number|string} userId - ID del usuario.
- * @param {string} nombre - Nombre de la materia a verificar.
- * @param {number|string} [excludeId] - ID opcional de materia a ignorar en la verificación.
- * @returns {Promise<boolean>} Retorna `true` si ya existe un registro con ese nombre.
+ * @param {string} nombre - Nombre.
+ * @param {number|string} [excludeId] - ID a ignorar.
+ * @returns {Promise<boolean>}
  */
 export async function existsByName(userId, nombre, excludeId) {
   const params = [userId, nombre];
@@ -318,24 +307,63 @@ export async function existsByName(userId, nombre, excludeId) {
 }
 
 /**
- * Consulta en la base de datos las tareas asociadas a una materia, blindadas por el ID del usuario.
+ * Consulta las tareas asociadas a una materia y validadas por el ID de usuario.
  *
  * @async
- * @function findTareasByMateriaId
- * @param {number|string} materiaId - ID de la materia.
+ * @function findTareasByMateriaAndUserId
+ * @param {number|string} id - ID de la materia.
  * @param {number|string} userId - ID del usuario.
- * @returns {Promise<Array<Object>>} Lista de tareas crudas de la base de datos.
+ * @returns {Promise<Array<Object>>}
  */
-export async function findTareasByMateriaId(materiaId, userId) {
+export async function findTareasByMateriaAndUserId(id, userId) {
   const [rows] = await pool.execute(
-    `SELECT t.* 
+    `SELECT
+       t.id_tarea AS id,
+       t.id_materia AS materiaId,
+       t.titulo,
+       t.descripcion,
+       t.fecha_entrega AS fechaEntrega,
+       t.hora_entrega AS horaEntrega,
+       t.prioridad,
+       t.estado,
+       t.carga_estimada_minutos AS cargaEstimadaMinutos,
+       t.porcentaje_avance AS porcentajeAvance,
+       t.created_at AS createdAt,
+       t.updated_at AS updatedAt
      FROM tarea t
-     INNER JOIN materia m ON t.id_materia = m.id_materia
-     WHERE t.id_materia = ? AND m.id_usuario = ?
-     ORDER BY t.created_at DESC`,
-    [materiaId, userId]
+     INNER JOIN materia m ON m.id_materia = t.id_materia
+     WHERE m.id_materia = ? AND m.id_usuario = ?`,
+    [id, userId]
   );
+  return rows;
+}
 
-  // Si tienes una función mapTarea(row) similar a mapMateria, úsala aquí: rows.map(mapTarea)
-  return rows; 
+/**
+ * Consulta los eventos asociados a una materia y validados por el ID de usuario.
+ *
+ * @async
+ * @function findEventosByMateriaAndUserId
+ * @param {number|string} id - ID de la materia.
+ * @param {number|string} userId - ID del usuario.
+ * @returns {Promise<Array<Object>>}
+ */
+export async function findEventosByMateriaAndUserId(id, userId) {
+  const [rows] = await pool.execute(
+    `SELECT
+       e.id_evento AS id,
+       e.id_materia AS materiaId,
+       e.titulo,
+       e.descripcion,
+       e.fecha,
+       e.hora_inicio AS horaInicio,
+       e.hora_fin AS horaFin,
+       e.tipo,
+       e.created_at AS createdAt,
+       e.updated_at AS updatedAt
+     FROM evento e
+     INNER JOIN materia m ON m.id_materia = e.id_materia
+     WHERE m.id_materia = ? AND m.id_usuario = ?`,
+    [id, userId]
+  );
+  return rows;
 }

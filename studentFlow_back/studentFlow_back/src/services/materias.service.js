@@ -7,10 +7,9 @@ import { HttpError } from "../utils/http-error.js";
  * @async
  * @function ensureUniqueFields
  * @param {number|string} userId - ID del usuario.
- * @param {Object} materia - Objeto con las propiedades `codigo` y/o `nombre`.
- * @param {number|string} [excludeId] - ID opcional de la materia a excluir (usado en actualizaciones).
+ * @param {Object} materia - Objeto de materia a verificar.
+ * @param {number|string} [excludeId] - ID opcional a excluir.
  * @returns {Promise<void>}
- * @throws {HttpError} Código 409 si el código o nombre ya están registrados.
  */
 async function ensureUniqueFields(userId, materia, excludeId) {
   if (materia.codigo) {
@@ -29,13 +28,42 @@ async function ensureUniqueFields(userId, materia, excludeId) {
 }
 
 /**
- * Crea una materia verificando la no duplicidad de datos.
+ * Obtiene todas las materias de un usuario.
+ *
+ * @async
+ * @function getAllMaterias
+ * @param {number|string} userId - ID del usuario.
+ * @returns {Promise<Object>}
+ */
+export async function getAllMaterias(userId) {
+  return materiasRepository.findAllByUserId(userId);
+}
+
+/**
+ * Obtiene una materia por su ID.
+ *
+ * @async
+ * @function getMateriaById
+ * @param {number|string} id - ID de la materia.
+ * @param {number|string} userId - ID del usuario.
+ * @returns {Promise<Object>}
+ */
+export async function getMateriaById(id, userId) {
+  const materia = await materiasRepository.findByIdAndUserId(id, userId);
+  if (!materia) {
+    throw new HttpError(404, "NOT_FOUND", "Materia no encontrada");
+  }
+  return materia;
+}
+
+/**
+ * Crea una nueva materia.
  *
  * @async
  * @function createMateria
- * @param {number|string} userId - ID del usuario propietario.
- * @param {Object} materia - Objeto con los datos de la materia a crear.
- * @returns {Promise<Object>} Promesa que resuelve con la materia creada.
+ * @param {number|string} userId - ID del usuario.
+ * @param {Object} materia - Datos de la materia.
+ * @returns {Promise<Object>}
  */
 export async function createMateria(userId, materia) {
   await ensureUniqueFields(userId, materia);
@@ -43,69 +71,73 @@ export async function createMateria(userId, materia) {
 }
 
 /**
- * Reemplaza completamente los datos de una materia.
+ * Reemplaza una materia existente.
  *
  * @async
  * @function replaceMateria
- * @param {number|string} id - ID de la materia a reemplazar.
+ * @param {number|string} id - ID de la materia.
  * @param {number|string} userId - ID del usuario.
- * @param {Object} materia - Nuevos datos completos para la materia.
- * @returns {Promise<Object>} Promesa que resuelve con la materia reemplazada.
+ * @param {Object} materia - Nuevos datos de la materia.
+ * @returns {Promise<Object>}
  */
 export async function replaceMateria(id, userId, materia) {
-  await materiasRepository.findByIdAndUserId(id, userId);
+  await getMateriaById(id, userId);
   await ensureUniqueFields(userId, materia, id);
   return materiasRepository.updateMateria(id, userId, materia);
 }
 
 /**
- * Actualiza de forma parcial los datos de una materia.
+ * Actualiza parcialmente una materia.
  *
  * @async
  * @function updateMateria
- * @param {number|string} id - ID de la materia a actualizar.
+ * @param {number|string} id - ID de la materia.
  * @param {number|string} userId - ID del usuario.
- * @param {Object} partialMateria - Datos parciales a modificar.
- * @returns {Promise<Object>} Promesa que resuelve con la materia actualizada.
+ * @param {Object} partialMateria - Datos parciales.
+ * @returns {Promise<Object>}
  */
 export async function updateMateria(id, userId, partialMateria) {
-  await materiasRepository.findByIdAndUserId(id, userId);
+  await getMateriaById(id, userId);
   await ensureUniqueFields(userId, partialMateria, id);
   return materiasRepository.patchMateria(id, userId, partialMateria);
 }
 
 /**
- * Elimina una materia validando previamente que exista y pertenezca al usuario.
+ * Elimina una materia.
  *
  * @async
  * @function removeMateria
- * @param {number|string} id - ID de la materia a eliminar.
+ * @param {number|string} id - ID de la materia.
  * @param {number|string} userId - ID del usuario.
  * @returns {Promise<void>}
  */
 export async function removeMateria(id, userId) {
-  await materiasRepository.findByIdAndUserId(id, userId);
+  await getMateriaById(id, userId);
   await materiasRepository.deleteMateria(id, userId);
 }
 
 /**
- * Obtiene las tareas de una materia, garantizando mediante el userId que el usuario tiene permisos.
+ * Obtiene las tareas de una materia.
  *
  * @async
- * @function getTareasByMateria
- * @param {number|string} materiaId - ID de la materia.
- * @param {number|string} userId - ID del usuario autenticado.
- * @returns {Promise<Array<Object>>} Promesa que resuelve con la lista de tareas.
+ * @function listTareasByMateria
+ * @param {number|string} id - ID de la materia.
+ * @param {number|string} userId - ID del usuario.
+ * @returns {Promise<Array<Object>>}
  */
-export async function getTareasByMateria(materiaId, userId) {
-  // 1. Validar explícitamente que la materia exista y le pertenezca a este usuario.
-  // Reutilizamos la función del repositorio que ya tienes. Si no existe, lanzará error o retornará null.
-  const materia = await materiasRepository.findByIdAndUserId(materiaId, userId);
-  
-  if (!materia) {
-    throw new HttpError(404, "NOT_FOUND", "La materia no existe o no tienes acceso a ella.");
-  }
+export async function listTareasByMateria(id, userId) {
+  return materiasRepository.findTareasByMateriaAndUserId(id, userId);
+}
 
-  // 2. Si pasa el filtro de seguridad, buscamos las tareas.
-  return materiasRepository.findTareasByMateriaId(materiaId, userId);
+/**
+ * Obtiene los eventos de una materia.
+ *
+ * @async
+ * @function listEventosByMateria
+ * @param {number|string} id - ID de la materia.
+ * @param {number|string} userId - ID del usuario.
+ * @returns {Promise<Array<Object>>}
+ */
+export async function listEventosByMateria(id, userId) {
+  return materiasRepository.findEventosByMateriaAndUserId(id, userId);
 }
