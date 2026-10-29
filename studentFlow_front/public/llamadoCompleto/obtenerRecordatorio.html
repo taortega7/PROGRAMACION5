@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Consultar recordatorio | StudentFlow</title>
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/llamados-completos.css">
+</head>
+<body>
+    <main>
+        <header>
+            <p class="eyebrow">StudentFlow / Recordatorios</p>
+            <h1>Consultar recordatorio</h1>
+            <p class="muted">Busca un recordatorio por su identificador.</p>
+        </header>
+
+        <nav class="navegacion" aria-label="Operaciones de recordatorios">
+            <a href="./listarRecordatorios.html">Listar</a>
+            <a href="./obtenerRecordatorio.html" aria-current="page">Consultar uno</a>
+            <a href="./crearRecordatorio.html">Crear</a>
+            <a href="./actualizarRecordatorio.html">Actualizar</a>
+            <a href="./eliminarRecordatorio.html">Eliminar</a>
+        </nav>
+
+        <section class="panel">
+            <h2>Buscar por ID</h2>
+
+            <form id="form-consultar-recordatorio">
+                <label for="recordatorioId">ID del recordatorio</label>
+                <input
+                    type="number"
+                    id="recordatorioId"
+                    min="1"
+                    required
+                    placeholder="Ejemplo: 1"
+                >
+
+                <div class="actions">
+                    <button type="submit" id="btn-consultar">
+                        Consultar recordatorio
+                    </button>
+                </div>
+            </form>
+
+            <p id="mensaje-estado" role="status" aria-live="polite"></p>
+        </section>
+
+        <section class="panel resultado-panel" id="resultado-recordatorio" hidden>
+            <h2>Información del recordatorio</h2>
+
+            <dl class="detalle-estado">
+                <dt>ID</dt>
+                <dd id="dato-id"></dd>
+
+                <dt>ID de tarea</dt>
+                <dd id="dato-tarea"></dd>
+
+                <dt>Mensaje</dt>
+                <dd id="dato-mensaje"></dd>
+
+                <dt>Fecha y hora</dt>
+                <dd id="dato-fecha"></dd>
+
+                <dt>Canal</dt>
+                <dd id="dato-canal"></dd>
+
+                <dt>Estado de lectura</dt>
+                <dd id="dato-leido"></dd>
+            </dl>
+        </section>
+
+        <footer>
+            StudentFlow · Gestión de recordatorios
+        </footer>
+    </main>
+
+    <script type="module" src="../js/llamadosCompletos/obtenerRecordatorio.js"></script>
+</body>
+</html>

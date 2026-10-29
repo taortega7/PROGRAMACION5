@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Crear recordatorio | StudentFlow</title>
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/llamados-completos.css">
+</head>
+<body>
+    <main>
+        <header>
+            <p class="eyebrow">StudentFlow / Recordatorios</p>
+            <h1>Crear recordatorio</h1>
+            <p class="muted">Registra un recordatorio asociado a una tarea.</p>
+        </header>
+
+        <nav class="navegacion" aria-label="Operaciones de recordatorios">
+            <a href="./listarRecordatorios.html">Listar</a>
+            <a href="./obtenerRecordatorio.html">Consultar uno</a>
+            <a href="./crearRecordatorio.html" aria-current="page">Crear</a>
+            <a href="./actualizarRecordatorio.html">Actualizar</a>
+            <a href="./eliminarRecordatorio.html">Eliminar</a>
+        </nav>
+
+        <section class="panel">
+            <h2>Datos del recordatorio</h2>
+
+            <form id="form-crear-recordatorio">
+                <label for="tareaId">ID de la tarea</label>
+                <input
+                    type="number"
+                    id="tareaId"
+                    min="1"
+                    required
+                    placeholder="ID de una tarea existente"
+                >
+
+                <label for="mensaje">Mensaje</label>
+                <textarea
+                    id="mensaje"
+                    rows="4"
+                    maxlength="500"
+                    required
+                    placeholder="Escribe el mensaje del recordatorio"
+                ></textarea>
+
+                <label for="fechaHora">Fecha y hora</label>
+                <input
+                    type="datetime-local"
+                    id="fechaHora"
+                    required
+                >
+
+                <label for="canal">Canal</label>
+                <select id="canal" required>
+                    <option value="">Selecciona un canal</option>
+                    <option value="app">Aplicación</option>
+                    <option value="email">Correo electrónico</option>
+                    <option value="sms">SMS</option>
+                </select>
+
+                <div class="actions">
+                    <button type="submit" id="btn-crear">
+                        Crear recordatorio
+                    </button>
+
+                    <button type="reset" class="secondary">
+                        Limpiar campos
+                    </button>
+                </div>
+            </form>
+
+            <p id="mensaje-estado" role="status" aria-live="polite"></p>
+        </section>
+
+        <footer>
+            StudentFlow · Gestión de recordatorios
+        </footer>
+    </main>
+
+    <script type="module" src="../js/llamadosCompletos/crearRecordatorio.js"></script>
+</body>
+</html>

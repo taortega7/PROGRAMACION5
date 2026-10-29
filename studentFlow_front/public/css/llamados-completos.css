@@ -1,0 +1,251 @@
+/* =========================================================
+   STUDENTFLOW - ESTILOS DEL MÓDULO DE RECORDATORIOS
+   Complementa styles.css sin reemplazar el diseño general.
+   ========================================================= */
+
+/* Navegación */
+.navegacion {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 24px;
+}
+
+.navegacion a {
+    display: inline-block;
+    color: #24466d;
+    background: #e2eaf5;
+    border: 1px solid #d3deed;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.navegacion a:hover {
+    background: #d3e0f1;
+    text-decoration: none;
+}
+
+/* Página actual */
+.navegacion a[aria-current="page"] {
+    color: #ffffff;
+    background: #2456a6;
+    border-color: #2456a6;
+}
+
+.navegacion a[aria-current="page"]:hover {
+    background: #1d4688;
+}
+
+/* Formularios y distribución de campos */
+.campos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 20px;
+}
+
+.campo {
+    min-width: 0;
+}
+
+/* Formularios de las páginas CRUD */
+form {
+    margin-top: 20px;
+}
+
+form > div {
+    margin-bottom: 16px;
+}
+
+/* Campos: conservan los colores definidos en styles.css */
+input,
+select,
+textarea {
+    max-width: 100%;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #2456a6;
+}
+
+/* Botones principales: mismo azul que el diseño original */
+button,
+input[type="submit"],
+input[type="button"] {
+    display: inline-block;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: #2456a6;
+    border: 1px solid #2456a6;
+    border-radius: 8px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+button:hover:not(:disabled),
+input[type="submit"]:hover:not(:disabled),
+input[type="button"]:hover:not(:disabled) {
+    background: #1d4688;
+    border-color: #1d4688;
+}
+
+/* Botones secundarios opcionales */
+button.secondary {
+    color: #24466d;
+    background: #eaf0f8;
+    border-color: #dce3ee;
+}
+
+button.secondary:hover:not(:disabled) {
+    background: #dce6f3;
+    border-color: #c8d6e8;
+}
+
+/* Botones de eliminación */
+button.danger {
+    color: #ffffff;
+    background: #b32632;
+    border-color: #b32632;
+}
+
+button.danger:hover:not(:disabled) {
+    background: #921d27;
+    border-color: #921d27;
+}
+
+/* Estado deshabilitado */
+button:disabled,
+input[type="submit"]:disabled,
+input[type="button"]:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Foco accesible con teclado */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.navegacion a:focus-visible {
+    outline: 3px solid rgba(36, 86, 166, 0.35);
+    outline-offset: 2px;
+}
+
+/* Botones agrupados */
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Tablas */
+.resultado-panel {
+    margin-top: 24px;
+}
+
+.tabla-contenedor {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 8px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    background: #ffffff;
+}
+
+caption {
+    text-align: left;
+    padding: 16px 0;
+    color: #53657d;
+}
+
+th,
+td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #dce3ee;
+}
+
+th {
+    color: #24466d;
+    background: #eaf0f8;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+td {
+    overflow-wrap: anywhere;
+}
+
+tbody tr:hover {
+    background: #f2f5fa;
+}
+
+/* Detalles de un recordatorio */
+.detalle-estado dt {
+    font-weight: 600;
+    margin-top: 16px;
+}
+
+.detalle-estado dd {
+    margin: 4px 0 0;
+}
+
+/* Mensajes de estado */
+#mensaje-estado {
+    margin-top: 18px;
+    line-height: 1.6;
+}
+
+.success-text {
+    color: #156547;
+}
+
+.error-text {
+    color: #b32632;
+}
+
+.info-text {
+    color: #2456a6;
+}
+
+/* Adaptación a pantallas pequeñas */
+@media (max-width: 600px) {
+    .campos {
+        grid-template-columns: 1fr;
+    }
+
+    .navegacion {
+        gap: 8px;
+    }
+
+    .navegacion a {
+        padding: 9px 11px;
+        font-size: 0.9rem;
+    }
+
+    button,
+    input[type="submit"],
+    input[type="button"] {
+        max-width: 100%;
+    }
+
+    th,
+    td {
+        padding: 10px 8px;
+    }
+}
